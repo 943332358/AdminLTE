@@ -1,0 +1,29 @@
+{
+  "total": 3,
+  "rows": [
+    {
+      "id": "1",
+      "stationId": "S0015",
+      "oilName": "汽油92#",
+      "oilPrice": 5.00,
+      "createTime": "2021-03-29 15:33:57",
+      "updateTime": "2021-07-09 20:46:43"
+    },
+    {
+      "id": "2",
+      "stationId": "S0125",
+      "oilName": "柴油0#",
+      "oilPrice": 4.00,
+      "createTime": "2021-03-29 15:33:57",
+      "updateTime": "2021-07-09 20:46:43"
+    },
+    {
+      "id": "3",
+      "stationId": "S0132",
+      "oilName": "汽油98#",
+      "oilPrice": 7.00,
+      "createTime": "2021-03-29 15:33:57",
+      "updateTime": "2021-07-09 20:46:43"
+    }
+  ]
+}
