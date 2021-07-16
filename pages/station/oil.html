@@ -16,21 +16,14 @@
 <table id="dg" class="easyui-datagrid" style="width:100%;">
 </table>
 <div id="toolbar">
-    <input class="easyui-textbox" label="油站编号" prompt="油站编号" style="width:300px">
-    <label class="textbox-label textbox-label-before">油品名称</label>
-    <input class="easyui-combobox" style="width:300px" prompt="油品名称" data-options="
-                    data: [
-                    {'id':1,'text':'汽油90#','value':'汽油90#'},
-                    {'id':2,'text':'0#','value':'0#'}
-                    ],
-                    editable: false,
-                    panelHeight: 'auto',
-                    labelPosition: 'top'
-                    ">
+    <input id="stationCode" class="easyui-textbox" data-options="labelAlign:'right'" label="油站编号" prompt="油站编号"
+           style="width:300px">
+    <label> 油品名称</label>
+    <input id="oil" style="width:300px">
 
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">新增
     </a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true">查询
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dgSearch()">查询
     </a>
 </div>
 
@@ -78,8 +71,32 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
 </div>
 <script type="text/javascript">
+    $(function () {
+        $.ajax({
+            url: "http://localhost/pr/list",
+            type: 'get',
+            data: {url: location.href.split('#')[0]},
+            success: function (data) {
+                $('#oil').combobox({
+                    data: data,
+                    labelAlign: 'right',
+                    editable: false,
+                    panelHeight: 'auto',
+                    labelPosition: 'top'
+                });
+
+            },
+            error: function (xhr, type) {
+                alert("getJSSDKSignature出错");
+            },
+        });
+
+
+    })
+
+
     $('#dg').datagrid({
-        url: 'datagrid.json',
+        url: 'http://localhost/station/pr/list',
         striped: true,
         fitColumns: true,
         toolbar: '#toolbar',
@@ -100,12 +117,20 @@
                 formatter: function (value, row, index) {
                     return '<div class="easyui-panel" style="padding:5px;">' +
                         '<a href="#" class="easyui-linkbutton" onclick="editUser(' + index + ')">编辑</a>\n' +
-                        '<a href="#" class="easyui-linkbutton" onclick="destroyUser()">删除</a>\n' +
+                        '<a href="#" class="easyui-linkbutton" onclick="destroyUser(' + index + ')">删除</a>\n' +
                         '</div>';
                 }
             }
         ]]
     });
+
+    function dgSearch() {
+        $('#dg').datagrid('load', {
+            oilName: $('#oil').combobox('getValue'),
+            stationCode: $('#stationCode').val()
+        });
+
+    }
 
     var url;
 
@@ -142,10 +167,10 @@
         });
     }
 
-    function destroyUser() {
-        var row = $('#dg').datagrid('getSelected');
+    function destroyUser(index) {
+        var row = $("#dg").datagrid('getRows')[index];
         if (row) {
-            $.messager.confirm('Confirm', 'Are you sure you want to destroy this user?', function (r) {
+            $.messager.confirm('警告', '确定删除?', function (r) {
                 if (r) {
                     $.post('destroy_user.php', {id: row.id}, function (result) {
                         if (result.success) {

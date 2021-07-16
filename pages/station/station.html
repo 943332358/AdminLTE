@@ -3,8 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <title>油站查询</title>
+    <script src="../../plugins/easyui/jquery.min.js"></script>
+    <script src="../../plugins/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="../../plugins/easyui/themes/material/easyui.css">
+    <link rel="stylesheet" href="../../plugins/easyui/themes/icon.css">
+    <link rel="stylesheet" href="../../plugins/easyui/themes/color.css">
+    <!--<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>-->
+    <script src="../../plugins/easyui/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
-油站查询
+<table id="dg1" class="easyui-datagrid" style="width:100%;">
+</table>
+<div id="toolbar1">
+    <input class="easyui-textbox" label="油站编号" prompt="油站编号" style="width:300px">
+    <label class="textbox-label textbox-label-before">油站状态</label>
+    <input class="easyui-combobox" style="width:213px" data-options="
+                    data: [
+                    {'id':0,'text':'全部','value':'0'},
+                    {'id':1,'text':'使用中','value':'1'},
+                    {'id':2,'text':'未使用','value':'2'},
+                    {'id':3,'text':'待审核','value':'3'}
+                    ],
+                    editable: false,
+                    panelHeight: 'auto',
+                    labelPosition: 'top'
+                    ">
+    <input label="添加时间" id="createDateStart" type="text" class="easyui-datebox" style="width:213px">-
+    <input id="createDateEnd" type="text" class="easyui-datebox" style="width:128px">
+    <input label="变更时间" id="updateDateStart" type="text" class="easyui-datebox" style="width:213px">-
+    <input id="updateDateEnd" type="text" class="easyui-datebox" style="width:128px">
+
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">新增
+    </a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true">查询
+    </a>
+</div>
+
+<div id="dlg" class="easyui-dialog" style="width:500px"
+     data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons'">
+    <form id="fm" method="post" style="text-align:center;padding:5px">
+        <table cellpadding="5">
+            <tr>
+                <td>油站编号:</td>
+                <td>
+                    <select id="stationId" class="easyui-combobox" name="dept" style="width:200px;"
+                            data-options="required:true">
+                        <option value="aa">aitem1</option>
+                        <option>bitem2</option>
+                        <option>bitem3</option>
+                        <option>ditem4</option>
+                        <option>eitem5</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>油品名称:</td>
+                <td>
+                    <select id="oilName" class="easyui-combobox" name="dept" style="width:200px;"
+                            data-options="required:true">
+                        <option value="aa">aitem1</option>
+                        <option>bitem2</option>
+                        <option>bitem3</option>
+                        <option>ditem4</option>
+                        <option>eitem5</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>油品单价:</td>
+                <td>
+                    <input class="easyui-textbox" id="oilPrice" name="oilPrice" data-options="required:true"
+                           style="width:200px;">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#dg1').datagrid({
+            url: 'datagrid.json',
+            striped: true,
+            fitColumns: true,
+            toolbar: '#toolbar1',
+            pagination: true,
+            pageNumber: 1,
+            pageSize: 10,
+            checkbox: true,
+            pageList: [10, 20, 30, 40, 50],
+            columns: [[
+                {field: 'id', width: 100, idField: true, checkbox: true},
+                {field: 'stationId', title: '油站编号', width: 100},
+                {field: 'oilName', title: '油品名称', width: 100},
+                {field: 'oilPrice', title: '油品价格', width: 100},
+                {field: 'createTime', title: '添加时间', width: 100},
+                {field: 'updateTime', title: '变更时间', width: 100},
+                {
+                    field: 'userId', title: '操作', width: 30,
+                    formatter: function (value, row, index) {
+                        return '<div class="easyui-panel" style="padding:5px;">' +
+                            '<a href="#" class="easyui-linkbutton" onclick="editUser(' + index + ')">编辑</a>\n' +
+                            '<a href="#" class="easyui-linkbutton" onclick="destroyUser()">删除</a>\n' +
+                            '</div>';
+                    }
+                }
+            ]]
+        });
+    });
+
+
+    var url;
+
+    function newUser() {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油品');
+        $('#fm').form('clear');
+        url = 'save_user.php';
+    }
+
+    function editUser(index) {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
+        $('#fm').form('load', $("#dg").datagrid('getRows')[index]);
+    }
+
+    function saveUser() {
+        $('#fm').form('submit', {
+            url: url,
+            iframe: false,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $('#dlg').dialog('close');        // close the dialog
+                    $('#dg').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+    }
+
+    function destroyUser() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Confirm', 'Are you sure you want to destroy this user?', function (r) {
+                if (r) {
+                    $.post('destroy_user.php', {id: row.id}, function (result) {
+                        if (result.success) {
+                            $('#dg').datagrid('reload');    // reload the user data
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+    }
+</script>
 </body>
 </html>
