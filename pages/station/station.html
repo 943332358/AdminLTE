@@ -48,14 +48,7 @@
             <tr>
                 <td>油站编号:</td>
                 <td>
-                    <select id="stationId" class="easyui-combobox" name="dept" style="width:200px;"
-                            data-options="required:true">
-                        <option value="aa">aitem1</option>
-                        <option>bitem2</option>
-                        <option>bitem3</option>
-                        <option>ditem4</option>
-                        <option>eitem5</option>
-                    </select>
+                    <input id="stationId" name="stationId" style="width:200px;">
                 </td>
             </tr>
             <tr>
@@ -85,6 +78,15 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
 </div>
 <script type="text/javascript">
+    $('#stationId').combobox({
+        url: "127.0.0.1/xxx",
+        queryParams: {
+            "age": 25,
+            "order": "desc"
+        }
+    });
+
+
     $(function () {
         $('#dg1').datagrid({
             url: 'datagrid.json',

@@ -34,32 +34,19 @@
             <tr>
                 <td>油站编号:</td>
                 <td>
-                    <select id="stationId" class="easyui-combobox" name="dept" style="width:200px;"
-                            data-options="required:true">
-                        <option value="aa">aitem1</option>
-                        <option>bitem2</option>
-                        <option>bitem3</option>
-                        <option>ditem4</option>
-                        <option>eitem5</option>
-                    </select>
+                    <input id="stationId" name="stationId" style="width:200px;">
                 </td>
             </tr>
             <tr>
                 <td>油品名称:</td>
                 <td>
-                    <select id="oilName" class="easyui-combobox" name="dept" style="width:200px;"
-                            data-options="required:true">
-                        <option value="aa">aitem1</option>
-                        <option>bitem2</option>
-                        <option>bitem3</option>
-                        <option>ditem4</option>
-                        <option>eitem5</option>
-                    </select>
+                    <input id="oilName" name="oilName" style="width:200px;">
                 </td>
             </tr>
             <tr>
                 <td>油品单价:</td>
                 <td>
+                    <input type="hidden" id="id" name="id" value="id">
                     <input class="easyui-textbox" id="oilPrice" name="oilPrice" data-options="required:true"
                            style="width:200px;">
                 </td>
@@ -72,25 +59,22 @@
 </div>
 <script type="text/javascript">
     $(function () {
-        $.ajax({
+        $('#oil').combobox({
             url: "http://localhost/pr/list",
-            type: 'get',
-            data: {url: location.href.split('#')[0]},
-            success: function (data) {
-                $('#oil').combobox({
-                    data: data,
-                    labelAlign: 'right',
-                    editable: false,
-                    panelHeight: 'auto',
-                    labelPosition: 'top'
-                });
-
-            },
-            error: function (xhr, type) {
-                alert("getJSSDKSignature出错");
-            },
+            labelAlign: 'right',
+            editable: false,
+            panelHeight: 'auto',
+            labelPosition: 'top'
         });
 
+
+        $('#stationId').combobox({
+            url: "http://localhost/station/all"
+        });
+
+        $('#oilName').combobox({
+            url: "http://localhost/pr/list"
+        });
 
     })
 
@@ -107,11 +91,13 @@
         pageList: [10, 20, 30, 40, 50],
         columns: [[
             {field: 'id', width: 100, idField: true, checkbox: true},
-            {field: 'stationId', title: '油站编号', width: 100},
+            {field: 'stationName', title: '油站编号', width: 100},
+            {field: 'stationId', title: '', hidden: true},
+            {field: 'oilId', title: '', hidden: true},
             {field: 'oilName', title: '油品名称', width: 100},
-            {field: 'oilPrice', title: '油品价格', width: 100},
-            {field: 'createTime', title: '添加时间', width: 100},
-            {field: 'updateTime', title: '变更时间', width: 100},
+            {field: 'price', title: '油品价格', width: 100},
+            {field: 'createdDate', title: '添加时间', width: 100},
+            {field: 'updatedDate', title: '变更时间', width: 100},
             {
                 field: 'userId', title: '操作', width: 30,
                 formatter: function (value, row, index) {
@@ -137,34 +123,41 @@
     function newUser() {
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油品');
         $('#fm').form('clear');
-        url = 'save_user.php';
+        url = 'http://localhost/station/prRelation/add';
     }
 
     function editUser(index) {
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
         $('#fm').form('load', $("#dg").datagrid('getRows')[index]);
+        url = 'http://localhost/station/changePrice';
     }
 
     function saveUser() {
-        $('#fm').form('submit', {
+        if (!$('#fm').form('validate')) {
+            return;
+        }
+
+        $.ajax({
+            type: "post",
             url: url,
-            iframe: false,
-            onSubmit: function () {
-                return $(this).form('validate');
+            data: {
+                stationName: $('#stationId').combobox('getText'),
+                stationId: $('#stationId').combobox('getValue'),
+                id: $('#id').val(),
+                oilName: $('#oilName').combobox('getText'),
+                oilId: $('#oilName').combobox('getValue'),
+                price: $('#oilPrice').val()
             },
-            success: function (result) {
-                var result = eval('(' + result + ')');
-                if (result.errorMsg) {
-                    $.messager.show({
-                        title: 'Error',
-                        msg: result.errorMsg
-                    });
-                } else {
-                    $('#dlg').dialog('close');        // close the dialog
-                    $('#dg').datagrid('reload');    // reload the user data
-                }
+            success: function (data) {
+                $('#dlg').dialog('close');        // close the dialog
+                $('#dg').datagrid('reload');    // reload the user data
+            },
+            error: function () {
+                alert("请求失败");
             }
         });
+
+
     }
 
     function destroyUser(index) {
