@@ -3,10 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <title>油枪查询</title>
+    <script src="../../plugins/easyui/jquery.min.js"></script>
+    <script src="../../plugins/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="../../plugins/easyui/themes/material/easyui.css">
+    <link rel="stylesheet" href="../../plugins/easyui/themes/icon.css">
+    <link rel="stylesheet" href="../../plugins/easyui/themes/color.css">
+    <script src="../../plugins/easyui/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
-aaaaaaaaaaaaaaaaa
-bbbbbbbbbbbbbbbbbb
-ccccccccccccccccccccc
+<table id="dg1" class="easyui-datagrid" style="width:100%;">
+</table>
+<div id="toolbar1">
+    <input class="easyui-textbox" id="stationName1" name="stationName" label="油站名称" prompt="油站名称" style="width:300px">
+    <label class="textbox-label textbox-label-before">使用状态</label>
+    <input class="easyui-combobox" id="status1" style="width:213px" data-options="
+                    data: [
+                    {'id':0,'text':'全部','value':''},
+                    {'id':1,'text':'使用中','value':'1'},
+                    {'id':2,'text':'未使用','value':'0'}
+                    ],
+                    editable: false,
+                    panelHeight: 'auto',
+                    labelPosition: 'top'
+                    ">
+    <a href="javascript:void(0)" class="easyui-linkbutton c5" plain="true" onclick="newUser()">新增
+    </a>
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" plain="true" onclick="dgSearch()">查询
+    </a>
+</div>
+
+<div id="dlg" class="easyui-dialog" style="width:500px"
+     data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons'">
+    <form id="fm" method="post" style="text-align:center;padding:5px">
+        <table cellpadding="5">
+            <tr>
+                <td>油站编号:</td>
+                <td>
+                    <input type="hidden" id="id" name="id" value="id">
+                    <input id="stationId" name="stationId" style="width:200px;">
+                </td>
+            </tr>
+            <tr>
+                <td>油枪序列号:</td>
+                <td>
+                    <input class="easyui-textbox" id="fpNo" name="fpNo" data-options="required:true"
+                           style="width:200px;">
+                </td>
+            </tr>
+            <tr>
+                <td>油品名称:</td>
+                <td>
+                    <input id="stationPrId" name="stationPrId" style="width:200px;">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
+</div>
+<script type="text/javascript">
+    function dgSearch() {
+        $('#dg1').datagrid('load', {
+            status: $('#status1').val(),
+            stationName: $('#stationName1').val()
+        });
+
+    }
+
+    $(function () {
+        $('#stationId').combobox({
+            editable: false,
+            required: true,
+            url: "http://localhost/station/all",
+            onChange: function (newValue, oldValue) {
+                $('#stationPrId').combobox({
+                    editable: false,
+                    url: "http://localhost/fp/pr/" + newValue
+                });
+            }
+        });
+
+
+        $('#dg1').datagrid({
+            url: 'http://localhost/fp/list',
+            striped: true,
+            fitColumns: true,
+            toolbar: '#toolbar1',
+            pagination: true,
+            pageNumber: 1,
+            pageSize: 10,
+            checkbox: true,
+            pageList: [10, 20, 30, 40, 50],
+            columns: [[
+                {field: 'id', idField: true, checkbox: true},
+                {field: 'stationName', title: '油站名称', width: 100},
+                {field: 'fpNo', title: '油枪编号', width: 100},
+                {field: 'oilName', title: '油品名称', width: 100},
+                {
+                    field: 'status', title: '使用状态', width: 100, formatter: function (value, row, index) {
+                        if (value === 1) {
+                            return "使用中";
+                        } else {
+                            return "未使用";
+                        }
+                    }
+                },
+                {field: 'createdDate', title: '添加时间', width: 100},
+                {
+                    field: 'userId', title: '操作', width: 60,
+                    formatter: function (value, row, index) {
+                        var val;
+                        if (row.status === 1) {
+                            val = "停用";
+                        } else {
+                            val = "启用";
+                        }
+
+                        return '<div class="easyui-panel" style="padding:5px;">' +
+                            '<a href="#" class="easyui-linkbutton" onclick="editUser(' + index + ')">编辑</a>\n' +
+                            '<a href="#" class="easyui-linkbutton" onclick="statusUpdate(' + index + ')">' + val + '</a>\n' +
+                            '</div>';
+                    }
+                }
+            ]]
+        });
+    });
+
+
+    var url;
+
+    function newUser() {
+        $('#stationId').combobox('enable');
+        $('#fpNo').textbox('enable');
+
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油站');
+        $('#fm').form('clear');
+        url = 'http://localhost/fp/add';
+    }
+
+    function statusUpdate(index) {
+        var row = $("#dg1").datagrid('getRows')[index];
+
+        $.ajax({
+            type: "post",
+            url: 'http://localhost/fp/edit',
+            data: {
+                status: row.status === 1 ? 0 : 1,
+                stationId: row.stationId,
+                stationName: row.stationName,
+                fpNo: row.fpNo,
+                stationPrId: row.stationId,
+                id: row.id
+            },
+            success: function (data) {
+                $('#dg1').datagrid('reload');    // reload the user data
+            },
+            error: function () {
+                alert("请求失败");
+            }
+        });
+    }
+
+    function editUser(index) {
+        $('#stationId').combobox('disable');
+        $('#fpNo').textbox('disable');
+
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
+        $('#fm').form('load', $("#dg1").datagrid('getRows')[index]);
+        url = 'http://localhost/fp/edit';
+    }
+
+    function saveUser() {
+        $('#fm').form('submit', {
+            url: url,
+            iframe: false,
+            onSubmit: function (data) {
+                data.stationName = $('#stationId').combobox('getText')
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.errorMsg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $('#dlg').dialog('close');        // close the dialog
+                    $('#dg1').datagrid('reload');    // reload the user data
+                }
+            }
+        });
+    }
+
+    function destroyUser() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('Confirm', 'Are you sure you want to destroy this user?', function (r) {
+                if (r) {
+                    $.post('destroy_user.php', {id: row.id}, function (result) {
+                        if (result.success) {
+                            $('#dg').datagrid('reload');    // reload the user data
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    }, 'json');
+                }
+            });
+        }
+    }
+</script>
 </body>
 </html>
