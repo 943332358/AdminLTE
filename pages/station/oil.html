@@ -19,11 +19,11 @@
     <input id="stationCode" class="easyui-textbox" data-options="labelAlign:'right'" label="油站编号" prompt="油站编号"
            style="width:300px">
     <label> 油品名称</label>
-    <input id="oil" style="width:300px">
+    <input id="oil" style="width:213px">
 
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">新增
+    <a href="javascript:void(0)" class="easyui-linkbutton c5" plain="true" onclick="newUser()">新增
     </a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dgSearch()">查询
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" plain="true" onclick="dgSearch()">查询
     </a>
 </div>
 
@@ -47,7 +47,7 @@
                 <td>油品单价:</td>
                 <td>
                     <input type="hidden" id="id" name="id" value="id">
-                    <input class="easyui-textbox" id="oilPrice" name="oilPrice" data-options="required:true"
+                    <input class="easyui-textbox" id="price" name="price" data-options="required:true"
                            style="width:200px;">
                 </td>
             </tr>
@@ -63,16 +63,19 @@
             url: "http://localhost/pr/list",
             labelAlign: 'right',
             editable: false,
+            value: "未选择",
             panelHeight: 'auto',
             labelPosition: 'top'
         });
 
 
         $('#stationId').combobox({
+            editable: false,
             url: "http://localhost/station/all"
         });
 
         $('#oilName').combobox({
+            editable: false,
             url: "http://localhost/pr/list"
         });
 
@@ -112,8 +115,8 @@
 
     function dgSearch() {
         $('#dg').datagrid('load', {
-            oilName: $('#oil').combobox('getValue'),
-            stationCode: $('#stationCode').val()
+            oilId: $('#oil').combobox('getValue'),
+            stationName: $('#stationCode').val()
         });
 
     }
@@ -121,12 +124,18 @@
     var url;
 
     function newUser() {
+        $('#oilName').combobox('enable');
+        $('#stationId').combobox('enable');
+
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油品');
         $('#fm').form('clear');
         url = 'http://localhost/station/prRelation/add';
     }
 
     function editUser(index) {
+        $('#oilName').combobox('disable');
+        $('#stationId').combobox('disable');
+
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
         $('#fm').form('load', $("#dg").datagrid('getRows')[index]);
         url = 'http://localhost/station/changePrice';
@@ -146,7 +155,7 @@
                 id: $('#id').val(),
                 oilName: $('#oilName').combobox('getText'),
                 oilId: $('#oilName').combobox('getValue'),
-                price: $('#oilPrice').val()
+                price: $('#price').val()
             },
             success: function (data) {
                 $('#dlg').dialog('close');        // close the dialog

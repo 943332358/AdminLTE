@@ -16,28 +16,21 @@
 <table id="dg1" class="easyui-datagrid" style="width:100%;">
 </table>
 <div id="toolbar1">
-    <input class="easyui-textbox" label="油站编号" prompt="油站编号" style="width:300px">
+    <input class="easyui-textbox" id="stationName1" name="stationName" label="油站编号" prompt="油站编号" style="width:300px">
     <label class="textbox-label textbox-label-before">油站状态</label>
-    <input class="easyui-combobox" style="width:213px" data-options="
+    <input class="easyui-combobox" id="status1" style="width:213px" data-options="
                     data: [
-                    {'id':0,'text':'全部','value':'0'},
+                    {'id':0,'text':'全部','value':''},
                     {'id':1,'text':'使用中','value':'1'},
-                    {'id':2,'text':'未使用','value':'2'},
-                    {'id':3,'text':'待审核','value':'3'}
+                    {'id':2,'text':'未使用','value':'0'}
                     ],
                     editable: false,
                     panelHeight: 'auto',
                     labelPosition: 'top'
                     ">
-    <input label="添加时间" id="createDateStart" type="text" class="easyui-datebox" style="width:213px">-
-    <input id="createDateEnd" type="text" class="easyui-datebox" style="width:128px">
-    <input label="变更时间" id="updateDateStart" type="text" class="easyui-datebox" style="width:213px">-
-    <input id="updateDateEnd" type="text" class="easyui-datebox" style="width:128px">
-
-
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">新增
+    <a href="javascript:void(0)" class="easyui-linkbutton c5" plain="true" onclick="newUser()">新增
     </a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true">查询
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" plain="true" onclick="dgSearch()">查询
     </a>
 </div>
 
@@ -46,29 +39,43 @@
     <form id="fm" method="post" style="text-align:center;padding:5px">
         <table cellpadding="5">
             <tr>
-                <td>油站编号:</td>
+                <td>油站名称:</td>
                 <td>
-                    <input id="stationId" name="stationId" style="width:200px;">
-                </td>
-            </tr>
-            <tr>
-                <td>油品名称:</td>
-                <td>
-                    <select id="oilName" class="easyui-combobox" name="dept" style="width:200px;"
-                            data-options="required:true">
-                        <option value="aa">aitem1</option>
-                        <option>bitem2</option>
-                        <option>bitem3</option>
-                        <option>ditem4</option>
-                        <option>eitem5</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>油品单价:</td>
-                <td>
-                    <input class="easyui-textbox" id="oilPrice" name="oilPrice" data-options="required:true"
+                    <input type="hidden" id="id" name="id" value="id">
+                    <input class="easyui-textbox" id="stationName" name="stationName" data-options="required:true"
                            style="width:200px;">
+                </td>
+            </tr>
+            <tr>
+                <td>手机号码:</td>
+                <td>
+                    <input class="easyui-textbox" id="phoneNo" name="phoneNo" data-options="required:true"
+                           style="width:200px;">
+                </td>
+            </tr>
+            <tr>
+                <td>固定电话:</td>
+                <td>
+                    <input class="easyui-textbox" id="contact" name="contact" style="width:200px;">
+                </td>
+            </tr>
+            <tr>
+                <td>油站地址:</td>
+                <td>
+                    <input class="easyui-textbox" id="address" name="address" data-options="required:true"
+                           style="width:200px;">
+                </td>
+            </tr>
+            <tr>
+                <td>经度:</td>
+                <td>
+                    <input class="easyui-textbox" id="lng" name="lng" style="width:200px;">
+                </td>
+            </tr>
+            <tr>
+                <td>纬度:</td>
+                <td>
+                    <input class="easyui-textbox" id="lat" name="lat" style="width:200px;">
                 </td>
             </tr>
         </table>
@@ -78,18 +85,17 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
 </div>
 <script type="text/javascript">
-    $('#stationId').combobox({
-        url: "127.0.0.1/xxx",
-        queryParams: {
-            "age": 25,
-            "order": "desc"
-        }
-    });
+    function dgSearch() {
+        $('#dg1').datagrid('load', {
+            status: $('#status1').val(),
+            stationName: $('#stationName1').val()
+        });
 
+    }
 
     $(function () {
         $('#dg1').datagrid({
-            url: 'datagrid.json',
+            url: 'http://localhost/station/list',
             striped: true,
             fitColumns: true,
             toolbar: '#toolbar1',
@@ -99,18 +105,35 @@
             checkbox: true,
             pageList: [10, 20, 30, 40, 50],
             columns: [[
-                {field: 'id', width: 100, idField: true, checkbox: true},
-                {field: 'stationId', title: '油站编号', width: 100},
-                {field: 'oilName', title: '油品名称', width: 100},
-                {field: 'oilPrice', title: '油品价格', width: 100},
-                {field: 'createTime', title: '添加时间', width: 100},
-                {field: 'updateTime', title: '变更时间', width: 100},
+                {field: 'id', idField: true, checkbox: true},
+                {field: 'stationName', title: '油站名称', width: 100},
                 {
-                    field: 'userId', title: '操作', width: 30,
+                    field: 'status', title: '使用状态', width: 100, formatter: function (value, row, index) {
+                        if (value === 1) {
+                            return "使用中";
+                        } else {
+                            return "未使用";
+                        }
+                    }
+                },
+                {field: 'createdDate', title: '添加时间', width: 100},
+                {field: 'updatedDate', title: '变更时间', width: 100},
+                {field: 'address', title: '油站地址', width: 100},
+                {field: 'phoneNo', title: '手机号码', width: 100},
+                {field: 'contact', title: '固定电话', width: 100},
+                {
+                    field: 'userId', title: '操作', width: 60,
                     formatter: function (value, row, index) {
+                        var val;
+                        if (row.status === 1) {
+                            val = "停用";
+                        } else {
+                            val = "启用";
+                        }
+
                         return '<div class="easyui-panel" style="padding:5px;">' +
                             '<a href="#" class="easyui-linkbutton" onclick="editUser(' + index + ')">编辑</a>\n' +
-                            '<a href="#" class="easyui-linkbutton" onclick="destroyUser()">删除</a>\n' +
+                            '<a href="#" class="easyui-linkbutton" onclick="statusUpdate(' + index + ')">' + val + '</a>\n' +
                             '</div>';
                     }
                 }
@@ -122,14 +145,37 @@
     var url;
 
     function newUser() {
-        $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油品');
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油站');
         $('#fm').form('clear');
-        url = 'save_user.php';
+        url = 'http://localhost/station/register';
+    }
+
+    function statusUpdate(index) {
+        var row = $("#dg1").datagrid('getRows')[index];
+
+        $.ajax({
+            type: "post",
+            url: 'http://localhost/station/edit',
+            data: {
+                status: row.status === 1 ? 0 : 1,
+                stationName: row.stationName,
+                address: row.address,
+                phoneNo: row.phoneNo,
+                id: row.id
+            },
+            success: function (data) {
+                $('#dg1').datagrid('reload');    // reload the user data
+            },
+            error: function () {
+                alert("请求失败");
+            }
+        });
     }
 
     function editUser(index) {
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
-        $('#fm').form('load', $("#dg").datagrid('getRows')[index]);
+        $('#fm').form('load', $("#dg1").datagrid('getRows')[index]);
+        url = 'http://localhost/station/edit';
     }
 
     function saveUser() {
@@ -148,7 +194,7 @@
                     });
                 } else {
                     $('#dlg').dialog('close');        // close the dialog
-                    $('#dg').datagrid('reload');    // reload the user data
+                    $('#dg1').datagrid('reload');    // reload the user data
                 }
             }
         });
