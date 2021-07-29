@@ -33,7 +33,7 @@
 </div>
 
 <div id="dlg" class="easyui-dialog" style="width:500px"
-     data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons'">
+     data-options="closed:true,border:'thin',buttons:'#dlg-buttons'">
     <form id="fm" method="post" style="text-align:center;padding:5px">
         <table cellpadding="5">
             <tr>
@@ -63,6 +63,8 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
 </div>
 <script type="text/javascript">
+    var urlPrefix = localStorage.getItem("urlPrefix");
+
     function dgSearch() {
         $('#dg1').datagrid('load', {
             status: $('#status1').val(),
@@ -75,22 +77,23 @@
         $('#stationId').combobox({
             editable: false,
             required: true,
-            url: "http://localhost/station/all",
+            url: urlPrefix + "/station/all",
             onChange: function (newValue, oldValue) {
                 $('#stationPrId').combobox({
                     editable: false,
-                    url: "http://localhost/fp/pr/" + newValue
+                    url: urlPrefix + "/fp/pr/" + newValue
                 });
             }
         });
 
 
         $('#dg1').datagrid({
-            url: 'http://localhost/fp/list',
+            url: urlPrefix + '/fp/list',
             striped: true,
             fitColumns: true,
             toolbar: '#toolbar1',
             pagination: true,
+            fit: true,
             pageNumber: 1,
             pageSize: 10,
             checkbox: true,
@@ -139,7 +142,7 @@
 
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油站');
         $('#fm').form('clear');
-        url = 'http://localhost/fp/add';
+        url = urlPrefix + '/fp/add';
     }
 
     function statusUpdate(index) {
@@ -147,7 +150,7 @@
 
         $.ajax({
             type: "post",
-            url: 'http://localhost/fp/edit',
+            url: urlPrefix + '/fp/edit',
             data: {
                 status: row.status === 1 ? 0 : 1,
                 stationId: row.stationId,
@@ -171,7 +174,7 @@
 
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
         $('#fm').form('load', $("#dg1").datagrid('getRows')[index]);
-        url = 'http://localhost/fp/edit';
+        url = urlPrefix + '/fp/edit';
     }
 
     function saveUser() {

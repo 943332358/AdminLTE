@@ -35,7 +35,7 @@
 </div>
 
 <div id="dlg" class="easyui-dialog" style="width:500px"
-     data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons'">
+     data-options="closed:true,border:'thin',buttons:'#dlg-buttons'">
     <form id="fm" method="post" style="text-align:center;padding:5px">
         <table cellpadding="5">
             <tr>
@@ -85,6 +85,8 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
 </div>
 <script type="text/javascript">
+    var urlPrefix = localStorage.getItem("urlPrefix");
+
     function dgSearch() {
         $('#dg1').datagrid('load', {
             status: $('#status1').val(),
@@ -95,12 +97,13 @@
 
     $(function () {
         $('#dg1').datagrid({
-            url: 'http://localhost/station/list',
+            url: urlPrefix + '/station/list',
             striped: true,
             fitColumns: true,
             toolbar: '#toolbar1',
             pagination: true,
             pageNumber: 1,
+            fit: true,
             pageSize: 10,
             checkbox: true,
             pageList: [10, 20, 30, 40, 50],
@@ -147,7 +150,7 @@
     function newUser() {
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油站');
         $('#fm').form('clear');
-        url = 'http://localhost/station/register';
+        url = urlPrefix + '/station/register';
     }
 
     function statusUpdate(index) {
@@ -155,7 +158,7 @@
 
         $.ajax({
             type: "post",
-            url: 'http://localhost/station/edit',
+            url: urlPrefix + '/station/edit',
             data: {
                 status: row.status === 1 ? 0 : 1,
                 stationName: row.stationName,
@@ -175,7 +178,7 @@
     function editUser(index) {
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
         $('#fm').form('load', $("#dg1").datagrid('getRows')[index]);
-        url = 'http://localhost/station/edit';
+        url = urlPrefix + '/station/edit';
     }
 
     function saveUser() {

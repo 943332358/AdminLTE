@@ -28,7 +28,7 @@
 </div>
 
 <div id="dlg" class="easyui-dialog" style="width:500px"
-     data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons'">
+     data-options="closed:true,border:'thin',buttons:'#dlg-buttons'">
     <form id="fm" method="post" style="text-align:center;padding:5px">
         <table cellpadding="5">
             <tr>
@@ -58,12 +58,13 @@
     <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">提交</a>
 </div>
 <script type="text/javascript">
+    var urlPrefix = localStorage.getItem("urlPrefix");
+
     $(function () {
         $('#oil').combobox({
-            url: "http://localhost/pr/list",
+            url: urlPrefix + "/pr/list",
             labelAlign: 'right',
             editable: false,
-            value: "未选择",
             panelHeight: 'auto',
             labelPosition: 'top'
         });
@@ -71,22 +72,23 @@
 
         $('#stationId').combobox({
             editable: false,
-            url: "http://localhost/station/all"
+            url: urlPrefix + "/station/all"
         });
 
         $('#oilName').combobox({
             editable: false,
-            url: "http://localhost/pr/list"
+            url: urlPrefix + "/pr/list"
         });
 
     })
 
 
     $('#dg').datagrid({
-        url: 'http://localhost/station/pr/list',
+        url: urlPrefix + '/station/pr/list',
         striped: true,
         fitColumns: true,
         toolbar: '#toolbar',
+        fit: true,
         pagination: true,
         pageNumber: 1,
         pageSize: 10,
@@ -129,7 +131,7 @@
 
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '新增油品');
         $('#fm').form('clear');
-        url = 'http://localhost/station/prRelation/add';
+        url = urlPrefix + '/station/prRelation/add';
     }
 
     function editUser(index) {
@@ -138,7 +140,7 @@
 
         $('#dlg').dialog('open').dialog('center').dialog('setTitle', '编辑油品');
         $('#fm').form('load', $("#dg").datagrid('getRows')[index]);
-        url = 'http://localhost/station/changePrice';
+        url = urlPrefix + '/station/changePrice';
     }
 
     function saveUser() {
@@ -158,6 +160,10 @@
                 price: $('#price').val()
             },
             success: function (data) {
+                if (data.code === "400") {
+                    $.messager.alert('新增失败', '油站对应油品重复');
+                    return;
+                }
                 $('#dlg').dialog('close');        // close the dialog
                 $('#dg').datagrid('reload');    // reload the user data
             },
