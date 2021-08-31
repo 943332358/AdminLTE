@@ -111,19 +111,22 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="javascript:void(0);" onclick="targetHtml('fpInfo',this)" class="nav-link">
+                                <a href="javascript:void(0);" onclick="targetHtml('fpInfo',this,'oil')"
+                                   class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>油品查询</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="javascript:void(0);" onclick="targetHtml('stationInfo',this)" class="nav-link">
+                                <a href="javascript:void(0);" onclick="targetHtml('stationInfo',this,'station')"
+                                   class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>油站查询</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="javascript:void(0);" onclick="targetHtml('oilInfo',this)" class="nav-link">
+                                <a href="javascript:void(0);" onclick="targetHtml('oilInfo',this,'fp')"
+                                   class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>油枪查询</p>
                                 </a>
@@ -141,33 +144,20 @@
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Main content -->
-        <section class="content">
-            <iframe id="fpInfo" style="display: none" width="100%" src="pages/station/oil.html"
-                    frameborder="0" marginwidth="0" marginheight="0">
-            </iframe>
-            <iframe id="stationInfo" style="display: none" width="100%" src="pages/station/station.html" frameborder="0"
-                    marginwidth="0" marginheight="0">
-            </iframe>
-            <iframe id="oilInfo" style="display: none" width="100%" src="pages/station/fp.html" frameborder="0"
-                    marginwidth="0" marginheight="0">
-            </iframe>
+        <section class="content" id="contentIframe">
+            <!--            <iframe id="fpInfo" style="display: none" width="100%" src="pages/station/oil.html"
+                                frameborder="0" marginwidth="0" marginheight="0">
+                        </iframe>
+                        <iframe id="stationInfo" style="display: none" width="100%" src="pages/station/station.html" frameborder="0"
+                                marginwidth="0" marginheight="0">
+                        </iframe>
+                        <iframe id="oilInfo" style="display: none" width="100%" src="pages/station/fp.html" frameborder="0"
+                                marginwidth="0" marginheight="0">
+                        </iframe>-->
         </section>
         <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
-    <!--    <footer class="main-footer">
-            <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
-            All rights reserved.
-            <div class="float-right d-none d-sm-inline-block">
-                <b>Version</b> 3.1.0
-            </div>
-        </footer>
-
-        &lt;!&ndash; Control Sidebar &ndash;&gt;
-        <aside class="control-sidebar control-sidebar-dark">
-            &lt;!&ndash; Control sidebar content goes here &ndash;&gt;
-        </aside>-->
-    <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
 
@@ -207,11 +197,20 @@
 <!--<script src="dist/js/pages/dashboard.js"></script>-->
 
 <script>
-    //localStorage.setItem("urlPrefix", "http://localhost");
+    //localStorage.setItem("urlPrefix", "http://localhost/admin");
 
     localStorage.setItem("urlPrefix", "http://station.yyzhx.top/admin");
 
-    function targetHtml(id, element) {
+    function targetHtml(id, element, page) {
+        var contentIframe = $("#contentIframe");
+        contentIframe.empty();
+
+        var html = '            <iframe id="' + id + '" style="display: none" width="100%" src="pages/station/' + page + '.html"\n' +
+            '                    frameborder="0" marginwidth="0" marginheight="0">\n' +
+            '            </iframe>';
+        contentIframe.append(html);
+
+
         // 移除已选中菜单的选中样式
         $("a[class='nav-link active']").attr("class", "nav-link")
         $("iframe").hide();
